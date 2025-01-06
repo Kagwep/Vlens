@@ -1,6 +1,9 @@
 import { RpcProvider, constants } from "starknet"
 import ChainChaitABI from "../abi/ChainChatContract.json"
 import AvnuChaitABI from "../abi/Avnu.json"
+import tokensAllJson from "../assets/tokens.json";
+
+export const tokensAll = tokensAllJson;
 
 export const ChainChatContractAddress = '0x0085abb4f8c75bbfe959431628f6700b13c457d8c0caaaa0ec81d92f7810400c';
 export const AvnuContractAddress = '0x04270219d365d6b017231b52e92b3fb5d7c8378b05e9abc97724537a80e93b0f'
