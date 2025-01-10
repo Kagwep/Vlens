@@ -11,6 +11,7 @@ import TokenSelector from '../components/TokenSelector';
 import { useGlobalContext } from '../provider/GlobalContext';
 import StarknetSwap from '../components/Swap';
 import { formatUnits } from 'viem';
+import { P2PLendingInterface } from '../components/P2PLendingComponent';
 
 interface AppState {
   isWalletConnected: boolean;
@@ -488,6 +489,7 @@ const LensScreen = () => (
     <div className="bg-slate-800 rounded-lg p-4">
       <h2 className="text-xl font-bold mb-4">Lens Profile</h2>
     </div>
+    <P2PLendingInterface />
   </div>
 );
 

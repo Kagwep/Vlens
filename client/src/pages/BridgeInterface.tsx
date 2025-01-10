@@ -9,17 +9,17 @@ export default function Home() {
   const { setSelectedRoute } = useGlobalContext(); 
 
   return (
-    <main className="min-h-screen bg-gray-900 text-gray-100">
+    <main className=" bg-gray-900 text-gray-100">
       {/* Simple header with just the logo and home button */}
       <header className="fixed top-0 w-full bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 z-10">
-        <div className="px-4 h-14 flex items-center justify-between">
+        <div className="px-2 h-14 flex items-center justify-between">
           <span className="font-bold text-xl bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
             Vlens
           </span>
           {isConnected ? (
             <button 
               onClick={() => disconnect()}
-              className="flex items-center justify-center px-4 mx-4 py-1.5 text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
+              className="flex items-center justify-center px-4 mx-6 py-1.5 text-sm font-medium text-gray-300 bg-gray-800 hover:bg-gray-700 rounded-lg border border-gray-700 transition-colors"
             >
               Home
             </button>
@@ -35,7 +35,7 @@ export default function Home() {
       </header>
 
       {/* Main content with proper spacing for fixed header */}
-      <div className="pt-20 px-4 pb-8 space-y-6">
+      <div className="pt-20  pb-8 space-y-6">
         {/* Wallet Connection Card */}
         <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl overflow-hidden">
           <div className="px-4 py-3 border-b border-gray-700 flex items-center justify-between">
@@ -63,10 +63,10 @@ export default function Home() {
 
             {/* LayerSwap Interface Card */}
             <div className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl overflow-hidden">
-              <div className="px-4 py-3 border-b border-gray-700">
+              <div className="px-2 py-3 border-b border-gray-700">
                 <h3 className="text-sm font-medium text-gray-300">Bridge Assets</h3>
               </div>
-              <div className="p-4">
+              <div className="">
                 <LayerSwapInterface />
               </div>
             </div>

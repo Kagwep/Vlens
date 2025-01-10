@@ -1,0 +1,231 @@
+[
+    {
+      "name": "MockPragmaOracleImpl",
+      "type": "impl",
+      "interface_name": "vesu::test::mock_oracle::IMockPragmaOracle"
+    },
+    {
+      "name": "vesu::vendor::pragma::DataType",
+      "type": "enum",
+      "variants": [
+        {
+          "name": "SpotEntry",
+          "type": "core::felt252"
+        },
+        {
+          "name": "FutureEntry",
+          "type": "(core::felt252, core::integer::u64)"
+        },
+        {
+          "name": "GenericEntry",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "name": "core::option::Option::<core::integer::u64>",
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Some",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "None",
+          "type": "()"
+        }
+      ]
+    },
+    {
+      "name": "vesu::vendor::pragma::PragmaPricesResponse",
+      "type": "struct",
+      "members": [
+        {
+          "name": "price",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "decimals",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "last_updated_timestamp",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "num_sources_aggregated",
+          "type": "core::integer::u32"
+        },
+        {
+          "name": "expiration_timestamp",
+          "type": "core::option::Option::<core::integer::u64>"
+        }
+      ]
+    },
+    {
+      "name": "vesu::test::mock_oracle::IMockPragmaOracle",
+      "type": "interface",
+      "items": [
+        {
+          "name": "get_data_median",
+          "type": "function",
+          "inputs": [
+            {
+              "name": "data_type",
+              "type": "vesu::vendor::pragma::DataType"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "vesu::vendor::pragma::PragmaPricesResponse"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "name": "get_num_sources_aggregated",
+          "type": "function",
+          "inputs": [
+            {
+              "name": "key",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u32"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "name": "get_last_updated_timestamp",
+          "type": "function",
+          "inputs": [
+            {
+              "name": "key",
+              "type": "core::felt252"
+            }
+          ],
+          "outputs": [
+            {
+              "type": "core::integer::u64"
+            }
+          ],
+          "state_mutability": "external"
+        },
+        {
+          "name": "set_price",
+          "type": "function",
+          "inputs": [
+            {
+              "name": "key",
+              "type": "core::felt252"
+            },
+            {
+              "name": "price",
+              "type": "core::integer::u128"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "name": "set_num_sources_aggregated",
+          "type": "function",
+          "inputs": [
+            {
+              "name": "key",
+              "type": "core::felt252"
+            },
+            {
+              "name": "num_sources_aggregated",
+              "type": "core::integer::u32"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        },
+        {
+          "name": "set_last_updated_timestamp",
+          "type": "function",
+          "inputs": [
+            {
+              "name": "key",
+              "type": "core::felt252"
+            },
+            {
+              "name": "last_updated_timestamp",
+              "type": "core::integer::u64"
+            }
+          ],
+          "outputs": [],
+          "state_mutability": "external"
+        }
+      ]
+    },
+    {
+      "name": "vesu::test::mock_oracle::MockPragmaOracle::BaseEntry",
+      "type": "struct",
+      "members": [
+        {
+          "name": "timestamp",
+          "type": "core::integer::u64"
+        },
+        {
+          "name": "source",
+          "type": "core::felt252"
+        },
+        {
+          "name": "publisher",
+          "type": "core::felt252"
+        }
+      ]
+    },
+    {
+      "name": "vesu::test::mock_oracle::MockPragmaOracle::SpotEntry",
+      "type": "struct",
+      "members": [
+        {
+          "name": "base",
+          "type": "vesu::test::mock_oracle::MockPragmaOracle::BaseEntry"
+        },
+        {
+          "name": "price",
+          "type": "core::integer::u128"
+        },
+        {
+          "name": "pair_id",
+          "type": "core::felt252"
+        },
+        {
+          "name": "volume",
+          "type": "core::integer::u128"
+        }
+      ]
+    },
+    {
+      "kind": "struct",
+      "name": "vesu::test::mock_oracle::MockPragmaOracle::SubmittedSpotEntry",
+      "type": "event",
+      "members": [
+        {
+          "kind": "data",
+          "name": "spot_entry",
+          "type": "vesu::test::mock_oracle::MockPragmaOracle::SpotEntry"
+        }
+      ]
+    },
+    {
+      "kind": "enum",
+      "name": "vesu::test::mock_oracle::MockPragmaOracle::Event",
+      "type": "event",
+      "variants": [
+        {
+          "kind": "nested",
+          "name": "SubmittedSpotEntry",
+          "type": "vesu::test::mock_oracle::MockPragmaOracle::SubmittedSpotEntry"
+        }
+      ]
+    }
+  ]

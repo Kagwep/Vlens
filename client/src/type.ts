@@ -132,3 +132,16 @@ export interface Token {
     // Gasless swap information
     gasless: GaslessInfo;
   }
+
+  export interface Amount {
+    amount_type: number; // 0 for Delta
+    denomination: number; // 0 for Assets
+    value: any; // uint256
+  }
+  
+  export interface Position {
+    collateral_shares: string;
+    nominal_debt: string;
+  }
+  
+  
