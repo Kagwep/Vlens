@@ -1,0 +1,27 @@
+[package]
+name = "lens2"
+version = "0.1.0"
+edition = "2024_07"
+
+# See more keys and their definitions at https://docs.swmansion.com/scarb/docs/reference/manifest.html
+
+[dependencies]
+starknet = ">=2.9.2"
+alexandria_math = { git = "https://github.com/keep-starknet-strange/alexandria.git" }
+
+[dev-dependencies]
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry", tag = "v0.35.1" }
+assert_macros = "2.9.2"
+
+[[target.starknet-contract]]
+sierra = true
+
+[scripts]
+test = "snforge test"
+
+[tool.snforge]
+
+[[tool.snforge.fork]]
+name = "MAINNET_FORK"
+url = "https://starknet-mainnet.public.blastapi.io/rpc/v0_7"
+block_id.number = "671358" # we use a specific block for reproducibility

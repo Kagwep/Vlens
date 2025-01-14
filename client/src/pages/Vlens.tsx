@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Home, Wallet, Repeat, User, Replace, ChevronDown, Loader2, Send, Copy, ExternalLink } from 'lucide-react';
-import { tokensAll } from '../constants';
+import { ECONTRACTADDRESS, EXTPABI, tokensAll } from '../constants';
 import { Message, QuoteResponse, SwapScreenProps, Token, TransferPanelProps } from '../type';
 import { useAccount, useBalance, useSendTransaction } from '@starknet-react/core';
 import { parseInputAmountToUint256 } from '../utils';
@@ -11,7 +11,10 @@ import TokenSelector from '../components/TokenSelector';
 import { useGlobalContext } from '../provider/GlobalContext';
 import StarknetSwap from '../components/Swap';
 import { formatUnits } from 'viem';
-import { P2PLendingInterface } from '../components/P2PLendingComponent';
+import VesuEarnService from '../components/VesuEarnService';
+import { RpcProvider } from 'starknet';
+import { EarnComponent } from '../components/EarnComponent';
+import SupplyComponent from '../components/SupplyComponent';
 
 interface AppState {
   isWalletConnected: boolean;
@@ -484,14 +487,36 @@ const SwapScreen: React.FC = () => {
 };
 
 
-const LensScreen = () => (
-  <div className="p-4">
-    <div className="bg-slate-800 rounded-lg p-4">
-      <h2 className="text-xl font-bold mb-4">Lens Profile</h2>
-    </div>
-    <P2PLendingInterface />
-  </div>
-);
+const LensScreen = () => {
+  const { account } = useGlobalContext();
+
+  const { sendAsync } = useSendTransaction({
+    calls: undefined  // This is required even if undefined initially
+  });
+
+
+
+  if (!account) {
+    return (
+        <div className="flex items-center justify-center min-h-screen">
+            <div className="text-center">
+                <h1 className="text-xl font-medium mb-4">Connect Wallet</h1>
+                <p className="text-gray-400">Please connect your wallet to continue</p>
+            </div>
+        </div>
+    );
+}
+
+  return (
+     <div className="min-h-screen bg-gray-900 py-12">
+            <div className="container mx-auto px-4">
+                <h1 className="text-2xl font-bold mb-8">Earn</h1>
+                
+                <SupplyComponent />
+            </div>
+        </div>
+  )
+};
 
 
 

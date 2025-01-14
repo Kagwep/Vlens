@@ -1,7 +1,7 @@
 
 import { RequestResult } from '@starknet-react/core';
 import {  Call } from 'starknet'
-
+import type { BigNumberish } from 'starknet';
 
 
 export type SendAsyncFunction = (args?: Call[]) => Promise<RequestResult<"wallet_addInvokeTransaction">>;
@@ -144,4 +144,86 @@ export interface Token {
     nominal_debt: string;
   }
   
-  
+  // Constants
+export const SCALE = BigInt('1000000000000000000'); // 1e18
+
+// Core Position type for tracking deposits
+export interface EPosition {
+    collateral_shares: BigNumberish;  // [SCALE]
+    nominal_debt: BigNumberish;       // [SCALE]
+}
+
+// Configuration for the earning pool
+export interface AssetConfig {
+    total_collateral_shares: BigNumberish;    // [SCALE]
+    total_nominal_debt: BigNumberish;         // [SCALE]
+    reserve: BigNumberish;                    // [asset scale]
+    max_utilization: BigNumberish;            // [SCALE]
+    floor: BigNumberish;                      // [SCALE]
+    scale: BigNumberish;                      // [SCALE]
+    is_legacy: boolean;
+    last_updated: number;                     // [seconds]
+    last_rate_accumulator: BigNumberish;      // [SCALE]
+    last_full_utilization_rate: BigNumberish; // [SCALE]
+    fee_rate: BigNumberish;                   // [SCALE]
+}
+
+// For handling deposit amounts
+export interface EAmount {
+    amount_type: 'Delta' | 'Target';
+    denomination: 'Native' | 'Assets';
+    value: BigNumberish;
+}
+
+// Parameters needed for deposits
+export interface DepositParams {
+    pool_id: BigNumberish;
+    asset: string;  // ContractAddress
+    amount: Amount;
+}
+
+// Current earning position info
+export interface EarnPositionInfo {
+    depositedAmount: BigNumberish;    // [asset scale]
+    earnedAmount: BigNumberish;       // [asset scale]
+    totalShares: BigNumberish;        // [SCALE]
+    apy: BigNumberish;               // [SCALE]
+}
+
+
+export interface EarnState {
+  isLoading: boolean;
+  error: string | null;
+  transactionHash: string | null;
+  positionInfo: {
+      depositedAmount: BigNumberish;
+      earnedAmount: BigNumberish;
+      totalShares: BigNumberish;
+      apy: BigNumberish;
+  } | null;
+  currentRate: BigNumberish | null;
+  maxDeposit: BigNumberish | null;
+}
+
+export interface EarnTransactionState {
+  isProcessing: boolean;
+  error: string | null;
+  hash: string | null;
+}
+
+export interface UseEarnConfig {
+  poolId: BigNumberish;
+  asset: string;
+  refreshInterval?: number; // in milliseconds
+}
+
+export type EarnActionType = 
+  | { type: 'LOADING_START' }
+  | { type: 'LOADING_END' }
+  | { type: 'SET_ERROR'; payload: string }
+  | { type: 'CLEAR_ERROR' }
+  | { type: 'SET_POSITION'; payload: EarnState['positionInfo'] }
+  | { type: 'SET_RATE'; payload: BigNumberish }
+  | { type: 'SET_MAX_DEPOSIT'; payload: BigNumberish }
+  | { type: 'SET_TRANSACTION_HASH'; payload: string }
+  | { type: 'RESET_STATE' };

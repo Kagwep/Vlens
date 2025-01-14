@@ -5,6 +5,9 @@ import tokensAllJson from "../assets/tokens.json";
 import singletonABI from "../abi/singleton.json";
 import extensionClAbi from "../abi/extensionCL.json";
 import  oracleAbi from "../abi/pragma_oracle.json"
+import constaBI from "../assets/extepo.json"
+import Erc20Abi from "../abi/ERC20.json"
+import lendABI from "../abi/lendAbi.json"
 
 export const tokensAll = tokensAllJson;
 
@@ -92,3 +95,15 @@ export const EXTENSION_ABI = extensionClAbi;
 
 
 export const ORACLE_ABI = oracleAbi;
+
+export const EXTPABI = constaBI;
+
+export const ECONTRACTADDRESS = "0x07cf3881eb4a58e76b41a792fa151510e7057037d80eda334682bd3e73389ec0"
+
+export const ERC20ABI = Erc20Abi;
+
+
+
+export const LENDABI = lendABI;
+
+export const LEND_CONTRACT_ADRRESS = "0x00865d5c8c9bea3886c011807c8e83d5e48e0ad3eaab2b667b4ff7844bf33a9b";

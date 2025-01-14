@@ -1,7 +1,7 @@
 use starknet::ContractAddress;
-use lens::jediswap;
+use lens2::jediswap;
 use alexandria_math::i257::i257;
-use lens::erc20;
+use lens2::erc20;
 
 
 #[derive(Drop, Serde)]
@@ -91,7 +91,7 @@ pub mod collateral_swap {
         ExactInputParams
     };
     use super::{ModifyPositionParams,ICollateralSwap,Amount};
-    use alexandria_math::i257::{i257};
+    use alexandria_math::i257::{i257,I257Trait,I257Impl};
 
     #[storage]
     struct Storage {
@@ -200,16 +200,16 @@ pub mod collateral_swap {
 
             // For closing positions (negative amount)
             let negative_value = if amount == 0 {
-                i257 { abs: amount, is_negative: false }
+                I257Trait::new(amount, false)  // Zero case
             } else {
-                i257 { abs: amount, is_negative: true }
+                I257Trait::new(amount,true)  // Negative case
             };
 
             // For opening positions (positive amount)
             let positive_value = if amount == 0 {
-                i257 { abs: amount, is_negative: false }
+                I257Trait::new(amount, false)  // Zero case
             } else {
-                i257 { abs: amount, is_negative: false }
+                I257Trait::new(amount,false)  // Positive case
             };
 
 
@@ -226,6 +226,12 @@ pub mod collateral_swap {
             
             let close_result = vesu.modify_position(close_params);
             let old_collateral_amount = close_result.collateral_amount;
+
+            println!("Flash loan amount: {}", amount);
+            println!("Old collateral amount: {}", old_collateral_amount);
+        
+            // Add safety check
+            assert(old_collateral_amount > 0, 'no collateral retrieved');
 
             // Prepare JediSwap path based on whether we need an intermediate token
             let mut swap_path: Array<felt252> = array![];
@@ -270,8 +276,14 @@ pub mod collateral_swap {
                 collateral_asset: params.new_collateral,
                 debt_asset: params.debt_token,
                 user: owner,
-                collateral: Amount { value:  i257 { abs: new_collateral_amount, is_negative: false }, is_kernel_side: true },
-                debt: Amount {  value: i257 { abs: amount, is_negative: false }, is_kernel_side: true },
+                collateral: Amount { 
+                    value: I257Trait::new(new_collateral_amount, false), 
+                    is_kernel_side: true 
+                },
+                debt: Amount { 
+                    value: I257Trait::new(amount, false), 
+                    is_kernel_side: true 
+                },
                 data: array![].span()
             };
             
