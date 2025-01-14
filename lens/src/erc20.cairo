@@ -4,11 +4,10 @@ use starknet::ContractAddress;
 #[starknet::interface]
 pub trait IERC20<TContractState> {
 
-    fn transfer(ref self: TContractState, recipient: ContractAddress, amount: u256) -> bool;
-
-
-    fn balanceOf(self: @TContractState, account: ContractAddress) -> u256;
-
-
-    fn approve(ref self: TContractState, spender: ContractAddress, amount: u256) -> bool;
+    fn total_supply(self: @TState) -> u256;
+    fn balance_of(self: @TState, account: ContractAddress) -> u256;
+    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
+    fn transfer_from(ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256) -> bool;
+    fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }

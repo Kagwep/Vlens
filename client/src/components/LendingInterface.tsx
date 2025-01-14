@@ -52,11 +52,22 @@ const LendingInterface = () => {
 
           const calls = [
             {
+                // First call: Approve
+                contractAddress: "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7", // ETH/WETH address
+                entrypoint: "approve",
+                calldata: [
+                  LEND_CONTRACT_ADRRESS, // address to approve (your wrapper contract)
+                  parseInputAmountToUint256(supplyForm.amount).low,
+                  parseInputAmountToUint256(supplyForm.amount).high
+                ]
+              },
+            {
               contractAddress: LEND_CONTRACT_ADRRESS,
               entrypoint: "supply",
               calldata: [
                 "2198503327643286920898110335698706244522220458610657370981979460625005526824",
                 "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+                "0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d",
                 parseInputAmountToUint256(supplyForm.amount).low,
                 parseInputAmountToUint256(supplyForm.amount).high
               ]

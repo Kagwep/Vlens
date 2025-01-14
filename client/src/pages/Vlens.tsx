@@ -15,6 +15,7 @@ import VesuEarnService from '../components/VesuEarnService';
 import { RpcProvider } from 'starknet';
 import { EarnComponent } from '../components/EarnComponent';
 import SupplyComponent from '../components/SupplyComponent';
+import LendingInterface from '../components/LendingInterface';
 
 interface AppState {
   isWalletConnected: boolean;
@@ -512,7 +513,7 @@ const LensScreen = () => {
             <div className="container mx-auto px-4">
                 <h1 className="text-2xl font-bold mb-8">Earn</h1>
                 
-                <SupplyComponent />
+                <LendingInterface />
             </div>
         </div>
   )

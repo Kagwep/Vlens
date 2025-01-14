@@ -7,6 +7,7 @@ pub trait ILendingWrapper<TContractState> {
         ref self: TContractState,
         pool_id: felt252,
         token: ContractAddress,
+        debt_asset: ContractAddress,
         amount: u256
     );
 
@@ -15,6 +16,7 @@ pub trait ILendingWrapper<TContractState> {
         pool_id: felt252,
         collateral_token: ContractAddress,
         borrow_token: ContractAddress,
+        collateral_amount: u256,  // Added this
         borrow_amount: u256
     );
 }
@@ -85,11 +87,11 @@ pub trait ISingleton<TContractState> {
 pub mod lending_wrapper {
     use super::ISingletonDispatcherTrait;
     use core::traits::Into;
-    use starknet::{ContractAddress, get_caller_address};
+    use starknet::{ContractAddress, get_caller_address, get_contract_address};
     use super::{ISingletonDispatcher,ModifyPositionParams,Amount,AmountType,AmountDenomination};
     use starknet::storage::StoragePointerReadAccess;
     use starknet::storage::StoragePointerWriteAccess;
-    use core::num::traits::Zero;
+    //use core::num::traits::Zero;
     use lens3::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     #[storage]
@@ -108,6 +110,7 @@ pub mod lending_wrapper {
             ref self: ContractState,
             pool_id: felt252,
             token: ContractAddress,
+            debt_asset: ContractAddress,
             amount: u256
         ) {
             // Assert non-zero amount
@@ -116,13 +119,17 @@ pub mod lending_wrapper {
             let caller = get_caller_address();
 
             let erc20 = IERC20Dispatcher { contract_address: token };
+
+            erc20.transfer_from(get_caller_address(), get_contract_address(), amount);
+
+
             erc20.approve(self.singleton.read(), amount);
       
             // Create supply parameters
             let params = ModifyPositionParams {
                 pool_id,
                 collateral_asset: token,
-                debt_asset: Zero::zero(), // <-- Changed this to use zero address
+                debt_asset: debt_asset, // <-- Changed this to use zero address
                 user: caller,
                 collateral: Amount {
                     amount_type: AmountType::Delta,
@@ -142,8 +149,9 @@ pub mod lending_wrapper {
             };
 
 
-            singleton.modify_position(params);
+            let response = singleton.modify_position(params);
 
+            assert(response.collateral_delta > 0.into(), 'Supply failed');
            
         }
         fn borrow(
@@ -151,13 +159,19 @@ pub mod lending_wrapper {
             pool_id: felt252,
             collateral_token: ContractAddress,
             borrow_token: ContractAddress,
+            collateral_amount: u256,  // Added this
             borrow_amount: u256
         ) {
-               // Assert non-zero amount
             assert(borrow_amount.low != 0 || borrow_amount.high != 0, 'Amount cannot be 0');
+            assert(collateral_amount.low != 0 || collateral_amount.high != 0, 'Need collateral');
             assert(collateral_token != borrow_token, 'Same token not allowed');
             
             let caller = get_caller_address();
+            
+            // Collect collateral from borrower
+            let collateral_erc20 = IERC20Dispatcher { contract_address: collateral_token };
+            collateral_erc20.transfer_from(caller, get_contract_address(), collateral_amount);
+            collateral_erc20.approve(self.singleton.read(), collateral_amount);
             
             let params = ModifyPositionParams {
                 pool_id,
@@ -166,22 +180,23 @@ pub mod lending_wrapper {
                 user: caller,
                 collateral: Amount {
                     amount_type: AmountType::Delta,
-                    denomination: AmountDenomination::Assets,  // Changed from Native
-                    value: 0.into()
+                    denomination: AmountDenomination::Assets,
+                    value: collateral_amount.into()
                 },
                 debt: Amount {
                     amount_type: AmountType::Delta,
-                    denomination: AmountDenomination::Assets,  // Changed from Native
+                    denomination: AmountDenomination::Assets,
                     value: borrow_amount.into()
                 },
                 data: array![].span()
             };
-
-            // Call singleton contract
+        
             let singleton = ISingletonDispatcher { 
                 contract_address: self.singleton.read() 
             };
-            singleton.modify_position(params);
+            let response = singleton.modify_position(params);
+
+            assert(response.collateral_delta > 0.into(), 'Supply failed');
         }
     }
 }
