@@ -227,3 +227,14 @@ export type EarnActionType =
   | { type: 'SET_MAX_DEPOSIT'; payload: BigNumberish }
   | { type: 'SET_TRANSACTION_HASH'; payload: string }
   | { type: 'RESET_STATE' };
+
+  export interface Token {
+    id: string;
+    name: string;
+    symbol: string;
+    address: string;
+    iconUrl: string;
+    pool: string;
+    decimals: number;
+    chainId: number;
+  }

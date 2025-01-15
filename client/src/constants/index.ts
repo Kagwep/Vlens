@@ -106,4 +106,8 @@ export const ERC20ABI = Erc20Abi;
 
 export const LENDABI = lendABI;
 
-export const LEND_CONTRACT_ADRRESS = "0x073bd1576aade4cba29879ab2f832a3da4775a58246b4d792a293f35083bdf4a";
+export const LEND_CONTRACT_ADRRESS = "0x01cd84b11d394dbd59ae1964b50c3c48d89ba334c702f3f88f1cedf41a84e700";
+
+export const VETH = "0x021fe2ca1b7e731e4a5ef7df2881356070c5d72db4b2d19f9195f6b641f75df0"
+
+export const SINGE = "0x0215af1a59d8ba6d49e4cc965be8bfcd6cbd86e0abe758b32a82bdb353b749de"

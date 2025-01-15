@@ -3,13 +3,6 @@ use alexandria_math::i257::i257;
 /// Interface for the lending wrapper contract
 #[starknet::interface]
 pub trait ILendingWrapper<TContractState> {
-    fn supply(
-        ref self: TContractState,
-        pool_id: felt252,
-        token: ContractAddress,
-        debt_asset: ContractAddress,
-        amount: u256
-    );
 
     fn borrow(
         ref self: TContractState,
@@ -18,6 +11,13 @@ pub trait ILendingWrapper<TContractState> {
         borrow_token: ContractAddress,
         collateral_amount: u256,  // Added this
         borrow_amount: u256
+    );
+    fn supply(
+        ref self: TContractState,
+        pool_id: felt252,
+        token: ContractAddress,
+        borrow_token: ContractAddress,
+        amount: u256
     );
 }
 
@@ -78,6 +78,7 @@ pub trait ISingleton<TContractState> {
         debt_asset: ContractAddress,
         user: ContractAddress
     ) -> (Position, u256, u256);
+
 }
 
 
@@ -106,30 +107,28 @@ pub mod lending_wrapper {
 
     #[abi(embed_v0)]
     impl LendingWrapperImpl of super::ILendingWrapper<ContractState> {
+        // For earning yield
+
+        // For potential future borrowing
         fn supply(
             ref self: ContractState,
             pool_id: felt252,
             token: ContractAddress,
-            debt_asset: ContractAddress,
+            borrow_token: ContractAddress,
             amount: u256
         ) {
-            // Assert non-zero amount
             assert(amount.low != 0 || amount.high != 0, 'Amount cannot be 0');
             
             let caller = get_caller_address();
-
             let erc20 = IERC20Dispatcher { contract_address: token };
-
             erc20.transfer_from(get_caller_address(), get_contract_address(), amount);
-
-
             erc20.approve(self.singleton.read(), amount);
-      
-            // Create supply parameters
+
+            // Borrowing position - original token order
             let params = ModifyPositionParams {
                 pool_id,
                 collateral_asset: token,
-                debt_asset: debt_asset, // <-- Changed this to use zero address
+                debt_asset: borrow_token,
                 user: caller,
                 collateral: Amount {
                     amount_type: AmountType::Delta,
@@ -143,16 +142,12 @@ pub mod lending_wrapper {
                 },
                 data: array![].span()
             };
-        
+
             let singleton = ISingletonDispatcher { 
                 contract_address: self.singleton.read() 
             };
-
-
             let response = singleton.modify_position(params);
-
             assert(response.collateral_delta > 0.into(), 'Supply failed');
-           
         }
         fn borrow(
             ref self: ContractState,

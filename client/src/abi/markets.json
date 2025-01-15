@@ -1,0 +1,54 @@
+{
+    "tokens": [
+      {
+        "id": "eth",
+        "name": "Ethereum",
+        "symbol": "ETH",
+        "address": "0x021fe2ca1b7e731e4a5ef7df2881356070c5d72db4b2d19f9195f6b641f75df0",
+        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
+        "pool": "Genesis",
+        "decimals": 18,
+        "chainId": "SN_MAIN"
+      },
+      {
+        "id": "wbtc",
+        "name": "Wrapped Bitcoin",
+        "symbol": "WBTC", 
+        "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
+        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png",
+        "pool": "Genesis",
+        "decimals": 8,
+        "chainId": "SN_MAIN"
+      },
+      {
+        "id": "usdc",
+        "name": "USD Coin",
+        "symbol": "USDC",
+        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
+        "pool": "Genesis",
+        "decimals": 6,
+        "chainId": "SN_MAIN"
+      },
+      {
+        "id": "dai",
+        "name": "Dai Stablecoin",
+        "symbol": "DAI",
+        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
+        "pool": "Genesis",
+        "decimals": 18,
+        "chainId": "SN_MAIN"
+      },
+      {
+        "id": "usdt",
+        "name": "Tether USD",
+        "symbol": "USDT",
+        "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+        "iconUrl": "https://assets.coingecko.com/coins/images/325/small/Tether.png",
+        "pool": "Genesis",
+        "decimals": 6,
+        "chainId": "SN_MAIN"
+      }
+    ]
+  }
