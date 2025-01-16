@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Home, Wallet, Repeat, User, Replace, ChevronDown, Loader2, Send, Copy, ExternalLink,Blocks } from 'lucide-react';
+import { Home, Wallet, Repeat, User, Replace, ChevronDown, Loader2, Send, Copy, ExternalLink } from 'lucide-react';
 import { ECONTRACTADDRESS, EXTPABI, tokensAll } from '../constants';
 import { Message, QuoteResponse, SwapScreenProps, Token, TransferPanelProps } from '../type';
 import { useAccount, useBalance, useSendTransaction } from '@starknet-react/core';
@@ -16,7 +16,6 @@ import { RpcProvider } from 'starknet';
 import { EarnComponent } from '../components/EarnComponent';
 import SupplyComponent from '../components/SupplyComponent';
 import LendingInterface from '../components/LendingInterface';
-import BridgeInterface from './BridgeInterface';
 
 interface AppState {
   isWalletConnected: boolean;
@@ -168,9 +167,9 @@ const VLENS = () => {
     <AppContext.Provider value={appState}>
       <div className="min-h-screen bg-slate-900 text-white relative">
         <div className="pb-16">
-          {activeTab === 'home' && <LensScreen />}
+          {activeTab === 'home' && <HomeScreen />}
           {activeTab === 'swap' && <SwapScreen />}
-          {activeTab === 'bridge' && <BridgeScreen />}
+          {activeTab === 'lens' && <LensScreen />}
         </div>
 
         <nav className="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700">
@@ -188,10 +187,10 @@ const VLENS = () => {
               onClick={() => setActiveTab('swap')}
             />
             <NavButton
-              icon={<Blocks size={24} />}
-              label="Bridge"
-              isActive={activeTab === 'bridge'}
-              onClick={() => setActiveTab('bridge')}
+              icon={<User size={24} />}
+              label="Lens"
+              isActive={activeTab === 'lens'}
+              onClick={() => setActiveTab('lens')}
             />
           </div>
         </nav>
@@ -203,13 +202,158 @@ const VLENS = () => {
 
 
 
-const BridgeScreen = () => {
+const HomeScreen = () => {
 
+  const [copied, setCopied] = useState(false);
+  const [message, setMessage] = useState<Message | null>(null);
+
+  const { sendAsync } = useSendTransaction({
+    calls: undefined  // This is required even if undefined initially
+  });
+
+
+  const handleTransfer = async (token: Token, amount: string,recipientAddress: string) => {
+
+    const calls = [
+      {
+        contractAddress: token.address,
+        entrypoint: "transfer",
+        calldata: [
+          recipientAddress,
+          parseInputAmountToUint256(amount).low,
+          parseInputAmountToUint256(amount).high
+        ]
+      }
+    ];
+
+    
+    const result = await sendAsync(calls);
+
+    console.log(result)
+
+    if (result){
+      setMessage({
+        text: `success: ${amount} sent to ${recipientAddress}`,
+        timestamp: new Date().toISOString(),
+        txHash: result.transaction_hash,
+        token: token.symbol,
+      })
+    }else{
+      setMessage({
+        text:  `error ${result}`,
+        timestamp: new Date().toISOString(),
+        error: result,
+      })
+    }
+
+    
+  };
+
+  const formatMessageText = (text: string) => {
+    // Regular expression for both Starknet and Ethereum addresses
+    const addressRegex = /(0x[a-fA-F0-9]{64}|0x[a-fA-F0-9]{40})/g;
+    
+    // Split the text into parts, with addresses and regular text separated
+    const parts = text.split(addressRegex);
+    
+    return parts.map((part, index) => {
+      if (part.match(addressRegex)) {
+        const isStarknetAddress = part.length === 66; // 0x + 64 chars
+        const truncated = `${part.slice(0, 6)}...${part.slice(-4)}`;
+        
+        return (
+          <span key={index} className="font-mono bg-gray-700/50 px-1 rounded">
+            {truncated}
+          </span>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
   
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      console.error('Failed to copy:', err);
+      return false;
+    }
+  };
+  
+
+  const handleCopyMessage = async (message: Message) => {
+    // Construct text with message and time, plus transaction details if available
+    const copyText = [
+      message.text,
+      `Time: ${message.timestamp}`,
+      message.txHash && `Transaction: ${message.txHash}`,
+      message.txHash && `Explorer: https://starkscan.co/tx/${message.txHash}`
+    ].filter(Boolean).join('\n');
+
+    const success = await copyToClipboard( copyText);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div className="p-4 space-y-6">
-      <BridgeInterface />
+      <div className="bg-slate-800 rounded-lg p-4">
+        <h2 className="text-xl font-bold mb-4">Quick Actions</h2>
+        {/* <div className="grid grid-cols-2 gap-4">
+          <ActionButton icon={<Repeat size={20} />} label="Swap" />
+          <ActionButton icon={<User size={20} />} label="Lens" />
+        </div> */}
+      </div>
+
+      <BalancesAccordion validTokens={validTokens as Token[]} />
+      
+      <TransferPanel 
+        validTokens={validTokens as Token[]}
+        onTransfer={handleTransfer}
+      />
+
+      {message &&(
+             <div
+             className={`max-w-[80%] sm:max-w-[70%] rounded-lg p-4  shadow-lg relative group`}
+           >
+             <div className="space-y-1.5">
+               <p className="text-sm leading-relaxed whitespace-pre-line">
+                 {formatMessageText(message.text)}
+                 {message.text && (
+                     <div className="group">
+                      
+                     <button
+                       onClick={() => handleCopyMessage(message)} 
+                       className="ml-2 inline-flex items-center text-xs opacity-100 group-hover:opacity-100 transition-opacity duration-200"
+                     >
+                       {copied ? (
+                         <span className="text-green-400 text-xs">Copied!</span>
+                       ) : (
+                         <Copy size={12} className="text-gray-300 hover:text-white transition-colors" />
+                       )}
+                     </button>
+                   </div>
+                 )}
+               </p>
+               <div className="flex items-center space-x-2 text-xs opacity-60">
+                   <span>{message.timestamp}</span>
+                   {message.txHash && message.error === undefined &&  (
+                   <a 
+                   href={`https://starkscan.co/tx/${message.txHash}`}
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="flex items-center space-x-1 hover:text-blue-300 transition-colors duration-150"
+                 >
+                   <span>Tx: {message.txHash?.slice(0, 6)}...{message.txHash.slice(-4)}</span>
+                   <ExternalLink size={12} />
+                 </a>
+                 )}
+               </div>
+             </div>
+           </div>
+      )}
     </div>
   );
 };
@@ -280,81 +424,63 @@ const SwapScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex flex-col items-center pt-16">
-      <header className="fixed top-0 w-full bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 z-10">
-        <div className="px-2 h-14 flex items-center justify-between">
-          <span className="font-bold text-xl bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
-            Vlens
-          </span>
-        </div>
-      </header>
-      {/* Header */}
-      <div className="w-full max-w-md text-center mb-8">
-        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          Avnu Swap
-        </h1>
-        <p className="text-gray-400 mt-2">Fast and secure token swaps on StarkNet</p>
-      </div>
+    <div className="p-4">
+      <div className="bg-slate-800 rounded-lg p-4 space-y-4">
+        <TokenSelector
+          label="From"
+          selectedToken={fromToken}
+          onTokenSelect={setFromToken}
+          amount={fromAmount}
+          onAmountChange={setFromAmount}
+          validTokens={validTokens as Token[]}
+          accountAddress={accountAddress}
+          mode="input"
+          quoteInfo={null}
+        />
 
-      {/* Main swap container */}
-      <div className="w-full max-w-md px-4">
-        <div className="bg-slate-800 rounded-lg p-6 space-y-6 shadow-xl border border-slate-700">
-          <TokenSelector
-            label="From"
-            selectedToken={fromToken}
-            onTokenSelect={setFromToken}
-            amount={fromAmount}
-            onAmountChange={setFromAmount}
-            validTokens={validTokens as Token[]}
-            accountAddress={accountAddress}
-            mode="input"
-            quoteInfo={null}
-          />
-
-          <div className="flex justify-center">
-            <button
-              onClick={() => {
-                const temp = fromToken;
-                setFromToken(toToken);
-                setToToken(temp);
-                setFromAmount('');
-                setQuoteInfo(null);
-              }}
-              className="p-2 hover:bg-slate-700 rounded-full transition-colors"
-            >
-              <Repeat size={20} className="text-gray-400" />
-            </button>
-          </div>
-
-          <TokenSelector
-            label="To (estimated)"
-            selectedToken={toToken}
-            onTokenSelect={setToToken}
-            validTokens={validTokens as Token[]}
-            accountAddress={accountAddress}
-            mode="output"
-            quoteInfo={quoteInfo}
-            isLoading={isLoadingQuote}
-          />
-
+        <div className="flex justify-center">
           <button
-            onClick={handleSwap}
-            disabled={!fromToken || !toToken || !fromAmount || !quoteInfo}
-            className={`w-full py-3 rounded-lg font-medium transition-colors ${
-              !fromToken || !toToken || !fromAmount || !quoteInfo
-                ? 'bg-slate-600 cursor-not-allowed'
-                : 'bg-blue-500 hover:bg-blue-600'
-            }`}
+            onClick={() => {
+              const temp = fromToken;
+              setFromToken(toToken);
+              setToToken(temp);
+              setFromAmount('');
+              setQuoteInfo(null);
+            }}
+            className="p-2 hover:bg-slate-700 rounded-full transition-colors"
           >
-            {!fromToken || !toToken 
-              ? 'Select tokens'
-              : !fromAmount
-              ? 'Enter amount'
-              : !quoteInfo
-              ? 'Getting quote...'
-              : 'Swap'}
+            <Repeat size={20} className="text-gray-400" />
           </button>
         </div>
+
+        <TokenSelector
+          label="To (estimated)"
+          selectedToken={toToken}
+          onTokenSelect={setToToken}
+          validTokens={validTokens as Token[]}
+          accountAddress={accountAddress}
+          mode="output"
+          quoteInfo={quoteInfo}
+          isLoading={isLoadingQuote}
+        />
+
+        <button
+          onClick={handleSwap}
+          disabled={!fromToken || !toToken || !fromAmount || !quoteInfo}
+          className={`w-full py-3 rounded-lg font-medium transition-colors ${
+            !fromToken || !toToken || !fromAmount || !quoteInfo
+              ? 'bg-slate-600 cursor-not-allowed'
+              : 'bg-blue-500 hover:bg-blue-600'
+          }`}
+        >
+          {!fromToken || !toToken 
+            ? 'Select tokens'
+            : !fromAmount
+            ? 'Enter amount'
+            : !quoteInfo
+            ? 'Getting quote...'
+            : 'Swap'}
+        </button>
       </div>
     </div>
   );

@@ -48,16 +48,16 @@ export const availableConnectors = () => {
   }
 
   return [
-    new InjectedConnector({ options: { id: "argentX" } }),
-    new InjectedConnector({ options: { id: "braavos" } }),
-    new InjectedConnector({ options: { id: "metamask" } }),
-    ArgentMobileConnector.init({
-      options: {
-        url: typeof window !== "undefined" ? window.location.href : "",
-        dappName: "Example dapp",
-        chainId: CHAIN_ID,
-      },
-    }),
+    //new InjectedConnector({ options: { id: "argentX" } }),
+    // new InjectedConnector({ options: { id: "braavos" } }),
+    // new InjectedConnector({ options: { id: "metamask" } }),
+    // ArgentMobileConnector.init({
+    //   options: {
+    //     url: typeof window !== "undefined" ? window.location.href : "",
+    //     dappName: "Example dapp",
+    //     chainId: CHAIN_ID,
+    //   },
+    // }),
     isMobileDevice() ? BraavosMobileConnector.init({}) : null,
     new WebWalletConnector({ url: ARGENT_WEBWALLET_URL, theme: "dark" }),
   ].filter((connector) => connector !== null)

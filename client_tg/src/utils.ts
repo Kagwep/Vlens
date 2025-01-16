@@ -67,19 +67,3 @@ export const findTokenBySymbol = (symbol: string, tokens: Token[]): Token | unde
   const normalizedSymbol = normalizeSymbol(symbol);
   return tokens.find(token => normalizeSymbol(token.symbol) === normalizedSymbol);
 };
-
-// Utility function for formatting numbers with decimals
-export const formatTokenAmount = (value: string, decimals: number) => {
-  if (!value) return '0';
-  const valueBn = BigInt(value);
-  const divisor = BigInt(10 ** decimals);
-  const integerPart = valueBn / divisor;
-  const fractionalPart = valueBn % divisor;
-  
-  // Convert fractional part to string and pad with leading zeros
-  let fractionalStr = fractionalPart.toString().padStart(decimals, '0');
-  // Remove trailing zeros
-  fractionalStr = fractionalStr.replace(/0+$/, '');
-  
-  return fractionalStr ? `${integerPart}.${fractionalStr}` : integerPart.toString();
-};

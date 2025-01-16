@@ -1,97 +1,64 @@
-"use client";
-
-
-import React, { useState } from 'react';
-import { useAccount } from "wagmi";
-import { StarknetkitConnectButton } from "./provider/StarknetkitProvider";
+import React from 'react';
 import { useGlobalContext } from "./provider/GlobalContext";
+import { StarknetkitConnectButton } from "./provider/StarknetkitProvider";
 import VLENS from './pages/Vlens';
-import BridgeInterface from './pages/BridgeInterface'; // You'll need to create this
 
-function App ()  {
-  const { account,selectedRoute, setSelectedRoute } = useGlobalContext(); // Starknet account
-  const { isConnected: isEvmConnected } = useAccount(); // EVM account
- 
-  // Show route selection if no route is selected and no wallet is connected
-  if (!selectedRoute && !account && !isEvmConnected) {
-    return (
-      <div className="min-h-screen p-6 bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-        <div className="space-y-12">
-          <div className="text-center space-y-4">
+function App() {
+  const { account, setSelectedRoute } = useGlobalContext();
+
+  return (
+    <div className="min-h-screen p-6 bg-gradient-to-b from-gray-900 to-gray-800 text-white">
+      {account ? (
+        <VLENS />
+      ) : (
+        <div className="max-w-3xl mx-auto text-center space-y-8">
+          <div className="space-y-4">
             <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500">
               vLens
             </h1>
-            <p className="text-lg text-gray-400">
+            <p className="text-xl text-gray-300">
               Monitor and manage your DeFi lending positions
             </p>
           </div>
 
-          <div className="max-w-2xl mx-auto space-y-8">
-            <h2 className="text-2xl font-bold text-center">Choose Your Path</h2>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* App Route Card */}
-              <div 
-                className="p-6 rounded-lg bg-gray-800 hover:bg-gray-700 cursor-pointer transition-all"
-                onClick={() => setSelectedRoute('app')}
-              >
-                <h3 className="text-xl font-bold mb-4">Launch App</h3>
-                <p className="text-gray-400 mb-4">
-                  Access the full vLens dashboard to monitor and manage your DeFi positions
-                </p>
-                <div className="text-blue-400">Connect Starknet Wallet →</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700">
+              <div className="h-12 w-12 mb-4 mx-auto bg-blue-500/10 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
               </div>
+              <h3 className="text-lg font-semibold mb-2">Earn & Borrow with Vesu</h3>
+              <p className="text-gray-400 mb-4">
+                Supply assets to earn yield and borrow against your collateral with competitive rates on Vesu.xyz
+              </p>
+            </div>
 
-              {/* Bridge Route Card */}
-              <div 
-                className="p-6 rounded-lg bg-gray-800 hover:bg-gray-700 cursor-pointer transition-all"
-                onClick={() => setSelectedRoute('bridge')}
-              >
-                <h3 className="text-xl font-bold mb-4">Bridge Tokens</h3>
-                <p className="text-gray-400 mb-4">
-                  Bridge your assets between chains using LayerSwap integration
-                </p>
-                <div className="text-blue-400">Connect EVM Wallet →</div>
+            <div className="p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700">
+              <div className="h-12 w-12 mb-4 mx-auto bg-purple-500/10 rounded-lg flex items-center justify-center">
+                <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
               </div>
+              <h3 className="text-lg font-semibold mb-2">Seamless Bridge Integration</h3>
+              <p className="text-gray-400 mb-4">
+                Bridge tokens from any chain to Starknet with just a few clicks using our integrated bridge solution
+              </p>
             </div>
           </div>
-        </div>
-      </div>
-    );
-  }
 
-  // Show appropriate interface based on selection and wallet connection
-  if (selectedRoute === 'app' || account) {
-    return (
-      <div className="min-h-screen p-6 bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-        {account ? (
-          <VLENS />
-        ) : (
-          <div className="text-center space-y-6">
-            <h2 className="text-2xl font-bold">Connect Your Starknet Wallet</h2>
+          <div className="max-w-md mx-auto p-6 bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700">
+            <h2 className="text-2xl font-bold mb-6">Connect Your Starknet Wallet</h2>
             <StarknetkitConnectButton />
-            <button 
-              onClick={() => setSelectedRoute(null)}
-              className="text-gray-400 hover:text-white underline"
-            >
-              Back to Selection
-            </button>
+            <div className="mt-4 text-sm text-gray-400">
+              Connect your wallet to access lending, borrowing, and bridging features
+            </div>
           </div>
-        )}
-      </div>
-    );
-  }
 
-  if (selectedRoute === 'bridge' || isEvmConnected) {
-    return (
-      <div className="min-h-screen p-6 bg-gradient-to-b from-gray-900 to-gray-800 text-white">
-        <BridgeInterface />
-      </div>
-    );
-  }
-
-  // Fallback (shouldn't reach here)
-  return null;
-};
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default App;

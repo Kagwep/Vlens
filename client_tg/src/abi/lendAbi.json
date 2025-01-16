@@ -1,0 +1,119 @@
+[
+  {
+    "name": "LendingWrapperImpl",
+    "type": "impl",
+    "interface_name": "lens3::lens3::ILendingWrapper"
+  },
+  {
+    "name": "core::integer::u256",
+    "type": "struct",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "name": "lens3::lens3::ILendingWrapper",
+    "type": "interface",
+    "items": [
+      {
+        "name": "supply_to_earn",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "pool_id",
+            "type": "core::felt252"
+          },
+          {
+            "name": "token",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "against_token",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "borrow",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "pool_id",
+            "type": "core::felt252"
+          },
+          {
+            "name": "collateral_token",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "borrow_token",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "collateral_amount",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "borrow_amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "name": "supply_as_collateral",
+        "type": "function",
+        "inputs": [
+          {
+            "name": "pool_id",
+            "type": "core::felt252"
+          },
+          {
+            "name": "token",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "borrow_token",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "name": "constructor",
+    "type": "constructor",
+    "inputs": [
+      {
+        "name": "singleton_address",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "kind": "enum",
+    "name": "lens3::lens3::lending_wrapper::Event",
+    "type": "event",
+    "variants": []
+  }
+]

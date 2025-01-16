@@ -1,19 +1,13 @@
 import { useContract, useSendTransaction } from '@starknet-react/core';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { LEND_CONTRACT_ADRRESS, LENDABI, SINGE, VETH } from '../constants';
 import { Abi } from 'starknet';
-import { formatTokenAmount, parseInputAmountToUint256 } from '../utils';
+import { parseInputAmountToUint256 } from '../utils';
 import tokens from "../abi/markets.json";
-import { IPosition, Token } from '../type';
-import { useGlobalContext } from '../provider/GlobalContext';
-import VesuDataProvider from './VesuDataProvider';
-import { Info } from 'lucide-react';
-
+import { Token } from '../type';
 
 const LendingInterface = () => {
   const [activeTab, setActiveTab] = useState('earn');
-
-  const {account} = useGlobalContext();
   
   const { contract } = useContract({
     address: LEND_CONTRACT_ADRRESS,
@@ -53,14 +47,6 @@ const LendingInterface = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
-
-    const {
-    positions,
-    rewards,
-    isLoading: dataLoading,
-    error: errorInLoading
-    } = VesuDataProvider();
 
   const handleSupply = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,68 +141,12 @@ const LendingInterface = () => {
     </div>
   );
 
-    // Filter positions by type
-    const earnPositions = positions.filter(p => p.type === 'earn');
-    const borrowPositions = positions.filter(p => p.type === 'borrow');
-
-    const getUSDPrice = (priceValue: string, decimals: number): number => {
-      return Number(BigInt(priceValue)) / 10 ** decimals;
-    };
-    
-
-    const renderPositions = (positions: IPosition[]) => (
-      <div className="mt-8 space-y-4">
-        <h2 className="text-xl font-semibold text-gray-200">Your Positions</h2>
-        {positions.length === 0 ? (
-          <p className="text-gray-400">No positions found</p>
-        ) : (
-          positions.map((position) => (
-            <div key={position.collateral.address} className="p-4 bg-gray-900 rounded-lg border border-gray-700">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-300">{position.collateral.symbol}</p>
-                  <p className="text-sm text-gray-400">
-                    Amount: {formatTokenAmount(position.collateral.value, position.collateral.decimals)}
-                  </p>
-                </div>
-                
-                {position.collateral.usdPrice && (
-                  <p className="text-gray-300">
-                    ${getUSDPrice(position.collateral.usdPrice.value, position.collateral.usdPrice.decimals).toFixed(3)}
-                  </p>
-                )}
-              </div>
-              {position.type === 'borrow' && position.ltv && (
-                <div className="mt-2 text-sm text-gray-400">
-                  LTV: {(Number(formatTokenAmount(position.ltv.current.value, position.ltv.current.decimals)) * 100).toFixed(2)}%
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-    );
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-6">
       <div className="max-w-2xl mx-auto">
-
-        {/* Rewards Section */}
-          {rewards && (
-          <div className="mb-6 p-4 bg-gray-800 rounded-xl shadow-xl border border-gray-700">
-            <h2 className="text-lg font-medium text-gray-200 mb-2">STRK Rewards</h2>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-400">Available Rewards</span>
-              <span className="text-gray-200">
-                {formatTokenAmount(rewards.amount, rewards.decimals)} STRK
-              </span>
-            </div>
-          </div>
-        )}
-
         <div className="bg-gray-800 rounded-xl shadow-xl overflow-hidden border border-gray-700">
           <div className="p-8">
-            <h1 className="text-3xl font-bold text-center mb-8 text-gray-100"></h1>
+            <h1 className="text-3xl font-bold text-center mb-8 text-gray-100">Lens Protocol</h1>
             
             <div className="flex gap-2 mb-8 bg-gray-900 p-1 rounded-lg">
               {['earn', 'borrow'].map((tab) => (
@@ -302,8 +232,6 @@ const LendingInterface = () => {
                 </div>
               </form>
             )}
-
-            {renderPositions(activeTab === 'earn' ? earnPositions : borrowPositions)}
 
             <button
               onClick={activeTab === 'earn' ? handleSupply : handleBorrow}
