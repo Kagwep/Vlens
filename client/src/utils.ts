@@ -4,6 +4,7 @@ export const shortenAddress = (addr: string | undefined): string => {
   };
 
   import { num, uint256 } from "starknet";
+import { TokenMapping } from "./type";
 
 export interface BigDecimal {
   value: bigint;
@@ -82,4 +83,30 @@ export const formatTokenAmount = (value: string, decimals: number) => {
   fractionalStr = fractionalStr.replace(/0+$/, '');
   
   return fractionalStr ? `${integerPart}.${fractionalStr}` : integerPart.toString();
+};
+
+
+// Create mapping from market data
+const createTokenMappings = (marketData: any): TokenMapping[] => {
+  return marketData.data.map((market: any) => ({
+    vTokenAddress: market.vToken.address,
+    underlyingAddress: market.address,
+    symbol: market.symbol,
+    pool: market.pool.name,
+    name: market.name
+  }));
+};
+
+    // Function to get the underlying token from a vToken address
+    export const getUnderlyingToken = (vTokenAddress: string, mappings: TokenMapping[]): TokenMapping | undefined => {
+      return mappings.find(mapping => 
+        mapping.vTokenAddress.toLowerCase() === vTokenAddress.toLowerCase()
+      );
+    };
+// Utility function to find vToken from underlying address
+const getVToken = (underlyingAddress: string, pool: string, mappings: TokenMapping[]): TokenMapping | undefined => {
+  return mappings.find(mapping => 
+    mapping.underlyingAddress.toLowerCase() === underlyingAddress.toLowerCase() && 
+    mapping.pool === pool
+  );
 };

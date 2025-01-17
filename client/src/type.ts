@@ -301,3 +301,62 @@ export interface IRewardsData {
 export interface IRewardsResponse {
   data: IRewardsData;
 }
+
+// Simple risk type
+export type RiskLevel = 'high' | 'medium' | 'low' | 'safe';
+
+export interface IRisk {
+  mdxUrl: string;
+  url: string;
+  level?: RiskLevel;
+}
+
+
+// New interfaces for market data
+export interface IStats {
+  canBeBorrowed: boolean;
+  totalSupplied: IPrice;
+  totalDebt: IPrice;
+  currentUtilization: IPrice;
+  supplyApy: IPrice;
+  defiSpringSupplyApr: IPrice | null;
+  borrowApr: IPrice;
+  lstApr: IPrice | null;
+}
+
+export interface IMarketAsset {
+  pool: IPool;
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  risk: IRisk;
+  vToken: {
+    address: string;
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  listedBlockNumber: number;
+  feeRate: IPrice;
+  interestRate: IPrice;
+  stats: IStats;
+}
+
+export interface IMarketsResponse {
+  data: IMarketAsset[];
+}
+
+export interface YieldBreakdown {
+  baseYield: number;
+  strkRewards: number;
+  totalYieldUSD: number;
+}
+
+export interface TokenMapping {
+  vTokenAddress: string;
+  underlyingAddress: string;
+  symbol: string;
+  pool: string;
+  name: string;
+}

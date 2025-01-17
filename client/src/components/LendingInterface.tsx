@@ -1,14 +1,25 @@
 import { useContract, useSendTransaction } from '@starknet-react/core';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { LEND_CONTRACT_ADRRESS, LENDABI, SINGE, VETH } from '../constants';
 import { Abi } from 'starknet';
-import { formatTokenAmount, parseInputAmountToUint256 } from '../utils';
+import { formatTokenAmount, getUnderlyingToken, parseInputAmountToUint256 } from '../utils';
 import tokens from "../abi/markets.json";
-import { IPosition, Token } from '../type';
+import { IMarketAsset, IPosition, RiskLevel, Token, TokenMapping } from '../type';
 import { useGlobalContext } from '../provider/GlobalContext';
 import VesuDataProvider from './VesuDataProvider';
 import { Info } from 'lucide-react';
+import { Index } from 'viem';
+import PositionsRenderer from './PositionsRenderer';
+import { ChevronDown } from 'lucide-react';
 
+interface PositionRenderProps {
+  positions: IPosition[];
+  markets: IMarketAsset[];
+  getMarketByAsset: (poolId: string, assetAddress: string) => IMarketAsset | undefined;
+  calculateAPY: (market: IMarketAsset) => number;
+  calculateMonthlyYield: (amount: string, market: IMarketAsset) => number;
+  getRiskLevel: (position: IPosition) => Promise<RiskLevel>;
+}
 
 const LendingInterface = () => {
   const [activeTab, setActiveTab] = useState('earn');
@@ -53,33 +64,63 @@ const LendingInterface = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+  const [positionRisks, setPositionRisks] = useState<Record<string, RiskLevel>>({});
 
     const {
-    positions,
-    rewards,
-    isLoading: dataLoading,
-    error: errorInLoading
+      positions,
+      rewards,
+      markets,
+      getEarnPositions,
+      getBorrowPositions,
+      getTotalValueLocked,
+      getMarketsByPool,
+      getMarketByAsset,
+      calculateAPY,
+      calculateMonthlyYield,
+      getRiskLevel,
+      getMarketRisk,
+      isLoading: dataLoading,
+      error: errorInLoading
     } = VesuDataProvider();
+
+  const [tokenMappings, setTokenMappings] = useState<TokenMapping[]>([]);
+
+    useEffect(() => {
+      const mappings = markets.map(market => ({
+        vTokenAddress: market.vToken.address,
+        underlyingAddress: market.address,
+        symbol: market.symbol,
+        pool: market.pool.name,
+        name: market.name
+      }));
+      setTokenMappings(mappings);
+    }, [markets]);
 
   const handleSupply = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     setSuccess('');
+
+    if(!supplyForm.token) return;
+
+    const underlying = getUnderlyingToken(supplyForm.token.address, tokenMappings);
+
+    if(!underlying) return;
+
     try {
       const calls = [
         {
-          contractAddress: "0x049d36570d4e46f48e99674bd3fcc84644ddd6b96f7c741b1562b82f9e004dc7",
+          contractAddress: underlying.underlyingAddress,
           entrypoint: "approve",
           calldata: [
-            VETH,
+            supplyForm.token.address,
             parseInputAmountToUint256(supplyForm.amount).low,
             parseInputAmountToUint256(supplyForm.amount).high
           ]
         },
         {
-          contractAddress: VETH,
+          contractAddress: supplyForm.token.address,
           entrypoint: "deposit",
           calldata: [
             parseInputAmountToUint256(supplyForm.amount).low,
@@ -121,39 +162,107 @@ const LendingInterface = () => {
     value: Token | null, 
     onChange: (token: Token) => void, 
     label: string 
-  }) => (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-300">
-        {label}
-      </label>
-      <select
-        className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-gray-200"
-        value={value?.id || ''}
-        onChange={(e) => {
-          const token = tokens.tokens.find(t => t.id === e.target.value);
-          if (token) onChange(token as unknown as Token);
-        }}
-        required
-      >
-        <option value="">Select a token</option>
-        {tokens.tokens.map((token) => (
-          <option key={token.id} value={token.id}>
-            {token.symbol} - {token.name}
-          </option>
-        ))}
-      </select>
-      {value && (
-        <div className="flex items-center p-2 bg-gray-800 rounded-md border border-gray-700">
-          <img 
-            src={value.iconUrl} 
-            alt={`${value.symbol} icon`} 
-            className="w-6 h-6 mr-2"
-          />
-          <span className="text-sm text-gray-300">{value.symbol} - {value.name}</span>
+  }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+  
+    // Group tokens by pool
+    const groupedTokens = tokens.tokens.reduce((acc, token) => {
+      if (!acc[token.pool]) {
+        acc[token.pool] = [];
+      }
+      acc[token.pool].push(token as unknown as Token);
+      return acc;
+    }, {} as Record<string, Token[]>);
+  
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
+  
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+  
+    return (
+      <div className="space-y-2" ref={dropdownRef}>
+        <label className="block text-sm font-medium text-gray-300">
+          {label}
+        </label>
+        
+        <div className="relative">
+          <button
+            type="button"
+            className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-left flex items-center justify-between"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {value ? (
+              <div className="flex items-center space-x-2">
+                <img 
+                  src={value.iconUrl} 
+                  alt={`${value.symbol} icon`} 
+                  className="w-6 h-6"
+                />
+                <div className="flex flex-col">
+                  <span className="text-gray-200">{value.symbol} - {value.name}</span>
+                  <span className="text-xs text-gray-400">{value.pool}</span>
+                </div>
+              </div>
+            ) : (
+              <span className="text-gray-400">Select a token</span>
+            )}
+            <ChevronDown className={`w-5 h-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          </button>
+  
+          {isOpen && (
+            <div className="absolute z-10 w-full mt-1 bg-gray-800 border border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              {Object.entries(groupedTokens).map(([pool, poolTokens]) => (
+                <div key={pool}>
+                  <div className="px-3 py-2 text-xs font-semibold text-gray-400 bg-gray-900">
+                    {pool}
+                  </div>
+                  {poolTokens.map((token) => (
+                    <div
+                      key={`${token.id}-${token.pool}`}
+                      className="flex items-center p-3 hover:bg-gray-700 cursor-pointer transition-colors"
+                      onClick={() => {
+                        onChange(token);
+                        setIsOpen(false);
+                      }}
+                    >
+                      <img 
+                        src={token.iconUrl} 
+                        alt={`${token.symbol} icon`} 
+                        className="w-6 h-6 mr-2"
+                      />
+                      <span className="text-gray-200">{token.symbol} - {token.name}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
-    </div>
-  );
+  
+        {value && (
+          <div className="flex items-center p-2 bg-gray-800 rounded-md border border-gray-700">
+            <img 
+              src={value.iconUrl} 
+              alt={`${value.symbol} icon`} 
+              className="w-6 h-6 mr-2"
+            />
+            <div className="flex flex-col">
+              <span className="text-sm text-gray-300">{value.symbol} - {value.name}</span>
+              <span className="text-xs text-gray-400">{value.pool}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+  
 
     // Filter positions by type
     const earnPositions = positions.filter(p => p.type === 'earn');
@@ -164,38 +273,19 @@ const LendingInterface = () => {
     };
     
 
-    const renderPositions = (positions: IPosition[]) => (
-      <div className="mt-8 space-y-4">
-        <h2 className="text-xl font-semibold text-gray-200">Your Positions</h2>
-        {positions.length === 0 ? (
-          <p className="text-gray-400">No positions found</p>
-        ) : (
-          positions.map((position) => (
-            <div key={position.collateral.address} className="p-4 bg-gray-900 rounded-lg border border-gray-700">
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="text-gray-300">{position.collateral.symbol}</p>
-                  <p className="text-sm text-gray-400">
-                    Amount: {formatTokenAmount(position.collateral.value, position.collateral.decimals)}
-                  </p>
-                </div>
-                
-                {position.collateral.usdPrice && (
-                  <p className="text-gray-300">
-                    ${getUSDPrice(position.collateral.usdPrice.value, position.collateral.usdPrice.decimals).toFixed(3)}
-                  </p>
-                )}
-              </div>
-              {position.type === 'borrow' && position.ltv && (
-                <div className="mt-2 text-sm text-gray-400">
-                  LTV: {(Number(formatTokenAmount(position.ltv.current.value, position.ltv.current.decimals)) * 100).toFixed(2)}%
-                </div>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-    );
+    useEffect(() => {
+      const loadRiskLevels = async () => {
+        const risks: Record<string, RiskLevel> = {};
+        
+        for (const position of positions) {
+          risks[position.collateral.address] = await getRiskLevel(position);
+        }
+        
+        setPositionRisks(risks);
+      };
+  
+      loadRiskLevels();
+    }, [positions]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-6">
@@ -302,9 +392,14 @@ const LendingInterface = () => {
                 </div>
               </form>
             )}
-
-            {renderPositions(activeTab === 'earn' ? earnPositions : borrowPositions)}
-
+          <PositionsRenderer
+            positions={activeTab === 'earn' ? getEarnPositions() : getBorrowPositions()}
+            markets={markets}
+            getMarketByAsset={getMarketByAsset}
+            calculateAPY={calculateAPY}
+            calculateMonthlyYield={calculateMonthlyYield}
+            getRiskLevel={getRiskLevel}
+          />
             <button
               onClick={activeTab === 'earn' ? handleSupply : handleBorrow}
               disabled={isLoading}
