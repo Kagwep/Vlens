@@ -4,7 +4,7 @@ use alexandria_math::i257::i257;
 #[starknet::interface]
 pub trait ILendingWrapper<TContractState> {
 
-    fn borrow(
+    fn supply_and_borrow(
         ref self: TContractState,
         pool_id: felt252,
         collateral_token: ContractAddress,
@@ -149,7 +149,7 @@ pub mod lending_wrapper {
             let response = singleton.modify_position(params);
             assert(response.collateral_delta > 0.into(), 'Supply failed');
         }
-        fn borrow(
+        fn supply_and_borrow(
             ref self: ContractState,
             pool_id: felt252,
             collateral_token: ContractAddress,
@@ -157,7 +157,7 @@ pub mod lending_wrapper {
             collateral_amount: u256,  // Added this
             borrow_amount: u256
         ) {
-            assert(borrow_amount.low != 0 || borrow_amount.high != 0, 'Amount cannot be 0');
+            //assert(borrow_amount.low != 0 || borrow_amount.high != 0, 'Amount cannot be 0');
             assert(collateral_amount.low != 0 || collateral_amount.high != 0, 'Need collateral');
             assert(collateral_token != borrow_token, 'Same token not allowed');
             

@@ -32,7 +32,7 @@ const LendingInterface = () => {
   });
   
   const pools = {
-    genesis: "2198503327643286920898110335698706244522220458610657370981979460625005526824",
+    Genesis: "2198503327643286920898110335698706244522220458610657370981979460625005526824",
     "Re7 USDC": "3592370751539490711610556844458488648008775713878064059760995781404350938653",
     "Re7 xSTRK": "2345856225134458665876812536882617294246962319062565703131100435311373119841",
     "Re7 sSTRK": "1301140954640322725373945719229815062445705809076381949099585786202465661889"
@@ -47,15 +47,15 @@ const LendingInterface = () => {
   });
 
   const [borrowForm, setBorrowForm] = useState<{
-    poolId: string;
     collateralToken: Token | null;
     borrowToken: Token | null;
     borrowAmount: string;
+    collateralAmount: string;
   }>({
-    poolId: Object.values(pools)[0],
     collateralToken: null,
     borrowToken: null,
-    borrowAmount: ''
+    borrowAmount: '',
+    collateralAmount: '',
   });
 
   const { sendAsync } = useSendTransaction({
@@ -130,7 +130,8 @@ const LendingInterface = () => {
         }
       ];
       await sendAsync(calls);
-      setSuccess('Supply transaction successful!');
+      setSuccess('Transaction successful!');
+      getEarnPositions()
     } catch (err) {
       setError((err as Error).message || 'Supply transaction failed');
     } finally {
@@ -138,15 +139,66 @@ const LendingInterface = () => {
     }
   };
 
+  // Helper function to get pool ID from pool name
+const getPoolId = (poolName: string): string => {
+  return pools[poolName as keyof typeof pools] || '';
+};
+
+
   const handleBorrow = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
     setSuccess('');
     try {
-      console.log('Borrow params:', borrowForm);
-      // Implement borrow logic here
-      setSuccess('Borrow transaction successful!');
+
+      const { collateralToken, borrowToken, borrowAmount } = borrowForm;
+    
+      if (!collateralToken || !borrowToken || !borrowAmount) {
+        throw new Error('Please fill in all fields');
+      }
+
+      console.log(collateralToken.pool)
+
+            // Get pool ID from collateral token's pool
+      const poolId = getPoolId(collateralToken.pool);
+      if (!poolId) {
+        throw new Error('Invalid pool selection');
+      }
+
+            // Get underlying token address for both collateral and borrow tokens
+      const underlyingCollateral = getUnderlyingToken(collateralToken.address, tokenMappings);
+      const underlyingBorrow = getUnderlyingToken(borrowToken.address, tokenMappings);
+
+      if (! underlyingBorrow || !underlyingCollateral) return;
+
+      const calls = [
+        {
+          contractAddress: underlyingCollateral.underlyingAddress,
+          entrypoint: "approve",
+          calldata: [
+            LEND_CONTRACT_ADRRESS,
+            parseInputAmountToUint256(borrowForm.collateralAmount).low,
+            parseInputAmountToUint256(borrowForm.collateralAmount).high,
+          ]
+        },
+        {
+          contractAddress: LEND_CONTRACT_ADRRESS,
+          entrypoint: "supply_and_borrow",
+          calldata: [
+            poolId,
+            underlyingCollateral.underlyingAddress,
+            underlyingBorrow.underlyingAddress,
+            parseInputAmountToUint256(borrowForm.collateralAmount).low,
+            parseInputAmountToUint256(borrowForm.collateralAmount).high,
+            parseInputAmountToUint256(borrowForm.borrowAmount).low,
+            parseInputAmountToUint256(borrowForm.borrowAmount).high
+          ]
+        }
+      ];
+      await sendAsync(calls);
+      setSuccess('Transaction successful!');
+      getBorrowPositions()
     } catch (err) {
       setError((err as Error).message || 'Borrow transaction failed');
     } finally {
@@ -246,7 +298,7 @@ const LendingInterface = () => {
           )}
         </div>
   
-        {value && (
+        {/* {value && (
           <div className="flex items-center p-2 bg-gray-800 rounded-md border border-gray-700">
             <img 
               src={value.iconUrl} 
@@ -258,7 +310,7 @@ const LendingInterface = () => {
               <span className="text-xs text-gray-400">{value.pool}</span>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     );
   };
@@ -347,23 +399,6 @@ const LendingInterface = () => {
               </form>
             ) : (
               <form onSubmit={handleBorrow} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">
-                    Pool
-                  </label>
-                  <select
-                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-gray-200"
-                    value={borrowForm.poolId}
-                    onChange={(e) => setBorrowForm(prev => ({ ...prev, poolId: e.target.value }))}
-                    required
-                  >
-                    {Object.entries(pools).map(([name, id]) => (
-                      <option key={id} value={id}>
-                        {name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
                 
                 <TokenSelector
                   value={borrowForm.collateralToken}
@@ -379,7 +414,21 @@ const LendingInterface = () => {
 
                 <div className="space-y-2">
                   <label className="block text-sm font-medium text-gray-300">
-                    Borrow Amount
+                    I will deposit
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-3 bg-gray-800 border border-gray-700 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all duration-200 text-gray-200 placeholder-gray-500"
+                    placeholder="Enter amount"
+                    value={borrowForm.collateralAmount}
+                    onChange={(e) => setBorrowForm(prev => ({ ...prev, collateralAmount: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-sm font-medium text-gray-300">
+                    To Borrow 
                   </label>
                   <input
                     type="text"
