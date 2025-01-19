@@ -241,7 +241,7 @@ const HomeScreen = () => {
       setMessage({
         text:  `error ${result}`,
         timestamp: new Date().toISOString(),
-        error: result,
+        error: `error ${result}`,
       })
     }
 
