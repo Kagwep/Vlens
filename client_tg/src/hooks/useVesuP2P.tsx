@@ -66,30 +66,30 @@ export function useVesuP2P() {
         const amountUint256 = uint256.bnToUint256(amount);
         
 
-        const calldata = [form.values.title, form.values.channels, form.values.price];
-        const mycall = contract.populate("add_package", calldata);
+        // const calldata = [form.values.title, form.values.channels, form.values.price];
+        // const mycall = contract.populate("add_package", calldata);
  
-        // Create position through singleton
-        const call = await singleton.modify_position({
-          pool_id: POOL_ID,
-          collateral_asset: "0x0", // No collateral for lender
-          debt_asset: lendAsset,
-          user: address,
-          collateral: {
-            amount_type: 0,
-            denomination: 0,
-            value: amountUint256
-          },
-          debt: {
-            amount_type: 0,
-            denomination: 0,
-            value: 0
-          },
-          data: [amount, minCollateral, interestRate]
-        });
+        // // Create position through singleton
+        // const call = await singleton.modify_position({
+        //   pool_id: POOL_ID,
+        //   collateral_asset: "0x0", // No collateral for lender
+        //   debt_asset: lendAsset,
+        //   user: address,
+        //   collateral: {
+        //     amount_type: 0,
+        //     denomination: 0,
+        //     value: amountUint256
+        //   },
+        //   debt: {
+        //     amount_type: 0,
+        //     denomination: 0,
+        //     value: 0
+        //   },
+        //   data: [amount, minCollateral, interestRate]
+        // });
   
-        const tx = await account.execute(call);
-        return tx;
+        // const tx = await account.execute(call);
+        // return tx;
       } catch (error) {
         console.error("Error creating lending offer:", error);
         setError("Failed to create lending offer");
