@@ -136,8 +136,6 @@ yarn dev
 
 ## Security Notice
 - Smart contracts pending audit
-- Use at your own risk
-- Only stake what you can afford to lose
 
 ### Telegram Mini App Usage
 
