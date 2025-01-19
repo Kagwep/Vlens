@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAccount, useWalletClient } from 'wagmi';
-import { type Hash } from 'viem';
+import { ByteArray, type Hash } from 'viem';
 
 interface SwapExecutionProps {
   swapData: {
@@ -104,12 +104,14 @@ export default function SwapExecution({ swapData }: SwapExecutionProps) {
 
       setStatus('executing');
       
-      // Send the transaction
+      //Send the transaction
       const hash = await walletClient.sendTransaction({
         to: depositAction.to_address as `0x${string}`,
         data: depositAction.call_data as `0x${string}`,
         value: BigInt(depositAction.amount_in_base_units),
         account: address,
+        kzg: undefined,
+        chain: undefined
       }) as Hash;
 
       setTxHash(hash);
