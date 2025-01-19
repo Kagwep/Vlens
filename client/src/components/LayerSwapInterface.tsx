@@ -3,6 +3,7 @@ import axios from 'axios';
 import { ArrowRightCircle } from 'lucide-react';
 import SwapExecution from './SwapExecutionProps';
 import toast from 'react-hot-toast';
+import { useGlobalContext } from '../provider/GlobalContext';
 
 interface Token {
   symbol: string;
@@ -56,6 +57,15 @@ export default function LayerSwapInterface() {
     refuel: false,
   });
   const [swapDest, setSwapDest] = useState();
+
+  const {account} = useGlobalContext();
+
+  useEffect(() => {
+    if (account?.address) {
+      setFormData(prev => ({ ...prev, destination_address: account.address }));
+    }
+  }, [account]);
+
 
   useEffect(() => {
     const fetchNetworks = async () => {

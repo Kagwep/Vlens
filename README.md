@@ -2,6 +2,8 @@
 
 vLens is a  DeFi position management interface built on Starknet that allows users to monitor and manage their lending positions. It simplifies the process of bridging assets, swapping tokens, and interacting with Vesu lending protocol.
 
+Website: https://vlens.vercel.app
+
 ## How to Use vLens
 
 ### Web Interface
@@ -122,7 +124,7 @@ yarn dev
 ```
 
 ## Links
-- Website: [Coming Soon]
+- Website: https://vlens.vercel.app
 - Documentation: [Coming Soon]
 - Telegram Bot: [Coming Soon]
 - Twitter: [Coming Soon]
