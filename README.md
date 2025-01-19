@@ -4,6 +4,8 @@ vLens is a  DeFi position management interface built on Starknet that allows use
 
 Website: https://vlens.vercel.app
 
+
+
 ## How to Use vLens
 
 ### Web Interface
@@ -71,6 +73,8 @@ Website: https://vlens.vercel.app
 - Quick access to core features
 - Mobile-optimized interface
 
+telegram: https://t.me/vlenssbot/vlens
+
 ## Future Improvements
 
 ### 🔄 Advanced Collateral Management
@@ -125,8 +129,8 @@ yarn dev
 
 ## Links
 - Website: https://vlens.vercel.app
-- Documentation: [Coming Soon]
-- Telegram Bot: [Coming Soon]
+- Documentation:
+- Telegram mini app: https://t.me/vlenssbot/vlens
 - Twitter: [Coming Soon]
 - Discord: [Coming Soon]
 
@@ -158,13 +162,3 @@ Tips for Telegram Mini App:
 - Switch between interfaces as needed
 - Check connection status before transactions
 
-## Support
-For support or inquiries:
-- Telegram: [Coming Soon]
-- Email: [Coming Soon]
-
-## Contributing
-Contributions are welcome! Please check our contributing guidelines [Coming Soon].
-
-## License
-[License Type] - see LICENSE file for details
