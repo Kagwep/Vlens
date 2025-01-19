@@ -203,6 +203,8 @@ const VLENS = () => {
 
 
 
+
+
 const BridgeScreen = () => {
 
   
@@ -385,8 +387,6 @@ const LensScreen = () => {
   return (
      <div className="min-h-screen bg-gray-900 py-12">
             <div className="container mx-auto px-4">
-                <h1 className="text-2xl font-bold mb-8">Earn</h1>
-                
                 <LendingInterface />
             </div>
         </div>
