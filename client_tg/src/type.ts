@@ -238,3 +238,125 @@ export type EarnActionType =
     decimals: number;
     chainId: number;
   }
+
+  // Pool Interface
+export interface IPool {
+  id: string;
+  name: string;
+  extensionContractAddress: string;
+}
+
+// Price Interface
+export interface IPrice {
+  value: string;
+  decimals: number;
+}
+
+// Asset Interface
+export interface IAsset {
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  value: string;
+  usdPrice?: IPrice;
+}
+
+// LTV Interface
+export interface ILTV {
+  max: IPrice;
+  current: IPrice;
+}
+
+// Position Interface
+export interface IPosition {
+  pool: IPool;
+  type: 'earn' | 'borrow';
+  walletAddress: string;
+  collateral: IAsset;
+  collateralShares?: IAsset;
+  debt?: IAsset;
+  ltv?: ILTV;
+  healthFactor?: number | null;
+}
+
+// Positions Response Interface
+export interface IPositionsResponse {
+  data: IPosition[];
+}
+
+// Rewards Interfaces
+export interface IDistributorData {
+  distributedAmount: string;
+  claimedAmount: string;
+}
+
+export interface IRewardsData {
+  walletAddress: string;
+  amount: string;
+  decimals: number;
+  distributorData: IDistributorData;
+}
+
+export interface IRewardsResponse {
+  data: IRewardsData;
+}
+
+// Simple risk type
+export type RiskLevel = 'high' | 'medium' | 'low' | 'safe';
+
+export interface IRisk {
+  mdxUrl: string;
+  url: string;
+  level?: RiskLevel;
+}
+
+
+// New interfaces for market data
+export interface IStats {
+  canBeBorrowed: boolean;
+  totalSupplied: IPrice;
+  totalDebt: IPrice;
+  currentUtilization: IPrice;
+  supplyApy: IPrice;
+  defiSpringSupplyApr: IPrice | null;
+  borrowApr: IPrice;
+  lstApr: IPrice | null;
+}
+
+export interface IMarketAsset {
+  pool: IPool;
+  address: string;
+  name: string;
+  symbol: string;
+  decimals: number;
+  risk: IRisk;
+  vToken: {
+    address: string;
+    name: string;
+    symbol: string;
+    decimals: number;
+  };
+  listedBlockNumber: number;
+  feeRate: IPrice;
+  interestRate: IPrice;
+  stats: IStats;
+}
+
+export interface IMarketsResponse {
+  data: IMarketAsset[];
+}
+
+export interface YieldBreakdown {
+  baseYield: number;
+  strkRewards: number;
+  totalYieldUSD: number;
+}
+
+export interface TokenMapping {
+  vTokenAddress: string;
+  underlyingAddress: string;
+  symbol: string;
+  pool: string;
+  name: string;
+}

@@ -5,28 +5,49 @@ use lens2::erc20;
 
 
 #[derive(Drop, Serde)]
-pub struct UpdatePositionResponse {
-    pub collateral_amount: u256,
-    pub debt_amount: u256,
-}
-
-// structs.cairo
-#[derive(Drop, Serde)]
-pub struct Amount {
-    pub value: i257,
-    pub is_kernel_side: bool,
+struct ModifyPositionParams {
+    pool_id: felt252,
+    collateral_asset: ContractAddress,
+    debt_asset: ContractAddress,
+    user: ContractAddress,
+    collateral: Amount,
+    debt: Amount,
+    data: Span<felt252>
 }
 
 #[derive(Drop, Serde)]
-pub struct ModifyPositionParams {
-    pub pool_id: felt252,
-    pub collateral_asset: ContractAddress,
-    pub debt_asset: ContractAddress,
-    pub user: ContractAddress,
-    pub collateral: Amount,
-    pub debt: Amount,
-    pub data: Span<felt252>
+struct Amount {
+    amount_type: AmountType,
+    denomination: AmountDenomination,
+    value: i257
 }
+
+#[derive(Drop, Serde)]
+enum AmountType {
+    Delta,
+    Target
+}
+
+#[derive(Drop, Serde)]
+enum AmountDenomination {
+    Native,
+    Assets
+}
+
+#[derive(Drop, Serde)]
+struct UpdatePositionResponse {
+    collateral_delta: i257,
+    collateral_shares_delta: i257,
+    debt_delta: i257,
+    nominal_debt_delta: i257
+}
+
+#[derive(PartialEq, Copy, Drop, Serde)]
+pub struct Position {
+    pub collateral_shares: u256, // packed as u128 [SCALE] 
+    pub nominal_debt: u256, // packed as u123 [SCALE]
+}
+
 
 #[starknet::interface]
 pub trait IVesu<TContractState> {
@@ -91,6 +112,7 @@ pub mod collateral_swap {
         ExactInputParams
     };
     use super::{ModifyPositionParams,ICollateralSwap,Amount};
+    use super::{AmountType,AmountDenomination};
     use alexandria_math::i257::{i257,I257Trait,I257Impl};
 
     #[storage]
@@ -198,40 +220,31 @@ pub mod collateral_swap {
 
             let owner = self.owner.read();
 
-            // For closing positions (negative amount)
-            let negative_value = if amount == 0 {
-                I257Trait::new(amount, false)  // Zero case
-            } else {
-                I257Trait::new(amount,true)  // Negative case
-            };
 
-            // For opening positions (positive amount)
-            let positive_value = if amount == 0 {
-                I257Trait::new(amount, false)  // Zero case
-            } else {
-                I257Trait::new(amount,false)  // Positive case
-            };
-
-
-            // Close old position
             let close_params = ModifyPositionParams {
                 pool_id: params.pool_id,
                 collateral_asset: params.old_collateral,
                 debt_asset: params.debt_token,
                 user: owner,
-                collateral: Amount { value: negative_value, is_kernel_side: true },
-                debt: Amount { value: negative_value, is_kernel_side: true },
+                collateral: Amount {
+                    amount_type: AmountType::Delta,
+                    denomination: AmountDenomination::Assets,
+                    value: -(amount.into())  // Negative for closing
+                },
+                debt: Amount {
+                    amount_type: AmountType::Delta,
+                    denomination: AmountDenomination::Assets,
+                    value: -(amount.into())  // Negative for closing
+                },
                 data: array![].span()
             };
             
             let close_result = vesu.modify_position(close_params);
-            let old_collateral_amount = close_result.collateral_amount;
-
-            println!("Flash loan amount: {}", amount);
-            println!("Old collateral amount: {}", old_collateral_amount);
-        
+            let old_collateral_delta = close_result.collateral_delta;
+            // Check we got collateral out (delta should be negative for withdrawal)
+            assert(old_collateral_delta < 0.into(), 'no collateral retrieved');
             // Add safety check
-            assert(old_collateral_amount > 0, 'no collateral retrieved');
+
 
             // Prepare JediSwap path based on whether we need an intermediate token
             let mut swap_path: Array<felt252> = array![];
@@ -256,33 +269,36 @@ pub mod collateral_swap {
 
             let jediswap = self.jediswap.read();
             
-            // Approve JediSwap to spend old collateral
-            IERC20Dispatcher { contract_address: params.old_collateral }
-                .approve(jediswap.contract_address, old_collateral_amount);
+            let withdrawal_amount = (-old_collateral_delta).try_into().unwrap();
 
+            // Approve JediSwap to spend withdrawn collateral
+            IERC20Dispatcher { contract_address: params.old_collateral }
+                .approve(jediswap.contract_address, I257Trait::abs(withdrawal_amount));
+            
             let swap_params = ExactInputParams {
                 path: swap_path,
                 recipient: get_contract_address(),
                 deadline: get_block_timestamp(),
-                amount_in: old_collateral_amount,
+                amount_in: I257Trait::abs(withdrawal_amount),  // Using converted delta amount
                 amount_out_minimum: params.min_collateral_amount
             };
 
             let new_collateral_amount = jediswap.exact_input(swap_params);
 
-            // Open new position with new collateral
             let open_params = ModifyPositionParams {
                 pool_id: params.pool_id,
                 collateral_asset: params.new_collateral,
                 debt_asset: params.debt_token,
                 user: owner,
-                collateral: Amount { 
-                    value: I257Trait::new(new_collateral_amount, false), 
-                    is_kernel_side: true 
+                collateral: Amount {
+                    amount_type: AmountType::Delta,
+                    denomination: AmountDenomination::Assets,
+                    value: new_collateral_amount.into()
                 },
-                debt: Amount { 
-                    value: I257Trait::new(amount, false), 
-                    is_kernel_side: true 
+                debt: Amount {
+                    amount_type: AmountType::Delta,
+                    denomination: AmountDenomination::Assets,
+                    value: amount.into()
                 },
                 data: array![].span()
             };

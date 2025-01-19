@@ -1,54 +1,154 @@
 {
-    "tokens": [
-      {
-        "id": "eth",
-        "name": "Ethereum",
-        "symbol": "ETH",
-        "address": "0x021fe2ca1b7e731e4a5ef7df2881356070c5d72db4b2d19f9195f6b641f75df0",
-        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2/logo.png",
-        "pool": "Genesis",
-        "decimals": 18,
-        "chainId": "SN_MAIN"
-      },
-      {
-        "id": "wbtc",
-        "name": "Wrapped Bitcoin",
-        "symbol": "WBTC", 
-        "address": "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599",
-        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599/logo.png",
-        "pool": "Genesis",
-        "decimals": 8,
-        "chainId": "SN_MAIN"
-      },
-      {
-        "id": "usdc",
-        "name": "USD Coin",
-        "symbol": "USDC",
-        "address": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
-        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48/logo.png",
-        "pool": "Genesis",
-        "decimals": 6,
-        "chainId": "SN_MAIN"
-      },
-      {
-        "id": "dai",
-        "name": "Dai Stablecoin",
-        "symbol": "DAI",
-        "address": "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-        "iconUrl": "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/0x6B175474E89094C44Da98b954EedeAC495271d0F/logo.png",
-        "pool": "Genesis",
-        "decimals": 18,
-        "chainId": "SN_MAIN"
-      },
-      {
-        "id": "usdt",
-        "name": "Tether USD",
-        "symbol": "USDT",
-        "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
-        "iconUrl": "https://assets.coingecko.com/coins/images/325/small/Tether.png",
-        "pool": "Genesis",
-        "decimals": 6,
-        "chainId": "SN_MAIN"
-      }
-    ]
-  }
+  "tokens": [
+    {
+      "id": "eth",
+      "name": "Ether",
+      "symbol": "ETH",
+      "address": "0x021fe2ca1b7e731e4a5ef7df2881356070c5d72db4b2d19f9195f6b641f75df0",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/eth.png",
+      "pool": "Genesis", 
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "wbtc",
+      "name": "Vesu Wrapped BTC",
+      "symbol": "WBTC",
+      "address": "0x06b0ef784eb49c85f4d9447f30d7f7212be65ce1e553c18d516c87131e81dbd6",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/wbtc.png",
+      "pool": "Genesis",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "usdc",
+      "name": "USD Coin",
+      "symbol": "USDC",
+      "address": "0x01610abab2ff987cdfb5e73cccbf7069cbb1a02bbfa5ee31d97cc30e29d89090",
+       "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/usdc.png",
+      "pool": "Genesis",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "usdt", 
+      "name": "Tether USD",
+      "symbol": "USDT",
+      "address": "0x032dd20efeb027ee51e676280df60c609ac6f6dcff798e4523515bc1668ed715",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/usdt.png",
+      "pool": "Genesis",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "wsteth",
+      "name": "Vesu Wrapped Staked Ether",
+      "symbol": "wstETH", 
+      "address": "0x044a8304cd9d00a1730e4acbc31fb3a2f8cf1272d95c39c76e338841026fd001",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/steth.png",
+      "pool": "Genesis",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "strk",
+      "name": "Starknet",
+      "symbol": "STRK",
+      "address": "0x037ae3f583c8d644b7556c93a04b83b52fa96159b2b0cbd83c14d3122aef80a2",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/strk.png",
+      "pool": "Genesis",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "eth_re7_usdc",
+      "name": "USD Coin",
+      "symbol": "USDC",
+      "address": "0x00989d6902edd719fad6f0331122d084d0fc7cf03e7a254eee549fd9ad8e32e3",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/usdc.png",
+      "pool": "Re7 USDC",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "wbtc_re7_usdc",
+      "name": "Wrapped BTC ",
+      "symbol": "WBTC",
+      "address": "0x03c48b0d8bc4913d7d789fb2717572dcd71bb599f2c6e81beeb24d865c8baf14",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/wbtc.png",
+      "pool": "Re7 USDC",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "usdc_re7_usdc",
+      "name": "USD Coin",
+      "symbol": "USDC",
+      "address": "0x028795e04b2abaf61266faa81cc02d4d1a6ef8574fef383cdf6185ca580648aa",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/usdc.png",
+      "pool": "Re7 USDC",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "wsteth_re7_usdc",
+      "name": "Starknet Wrappped Staked Ether",
+      "symbol": "wstETH",
+      "address": "0x02ff9b23f4ada0f5efa0e5acbc6faf79cfed551563eef72fa91287ae38a8dd09",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/steth.png",
+      "pool": "Re7 USDC",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "strk_re7_usdc",
+      "name": "Starknet Token",
+      "symbol": "STRK",
+      "address": "0x00b5581d0bc94bc984cf79017d0f4b079c7e926af3d79bd92ff66fb451b340df",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/strk.png",
+      "pool": "Re7 USDC",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "strk_re7_sSTRK",
+      "name": "Starknet Token",
+      "symbol": "STRK",
+      "address": "0x05afdf4d18501d1d9d4664390df8c0786a6db8f28e66caa8800f1c2f51396492",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/strk.png",
+      "pool": "Re7 sSTRK",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "sstrk",
+      "name": "Staked Starknet Token",
+      "symbol": "sSTRK",
+      "address": "0x047b7947c36be505131384540cb52e869db715b359b98099ade4015bfc8be341",
+      "iconUrl": "https://nimbora-assets.s3.eu-central-1.amazonaws.com/yieldTokens/Group+41.svg",
+      "pool": "Re7 sSTRK",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "strk_re7_xSTRK",
+      "name": "Starknet Token",
+      "symbol": "STRK",
+      "address": "0x01f876e2da54266911d8a7409cba487414d318a2b6540149520bf7e2af56b93c",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/strk.png",
+      "pool": "Re7 xSTRK",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    },
+    {
+      "id": "xstrk",
+      "name": "Endur xSTRK",
+      "symbol": "xSTRK",
+      "address": "0x037ff012710c5175004687bc4d9e4c6e86d6ce5ca6fb6afee72ea02b1208fdb7",
+      "iconUrl": "https://dv3jj1unlp2jl.cloudfront.net/128/color/xstrk.png",
+      "pool": "Re7 xSTRK",
+      "decimals": 18,
+      "chainId": "SN_MAIN"
+    }
+  ]
+ }

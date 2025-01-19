@@ -167,9 +167,8 @@ const VLENS = () => {
     <AppContext.Provider value={appState}>
       <div className="min-h-screen bg-slate-900 text-white relative">
         <div className="pb-16">
-          {activeTab === 'home' && <HomeScreen />}
+          {activeTab === 'home' && <LensScreen />}
           {activeTab === 'swap' && <SwapScreen />}
-          {activeTab === 'lens' && <LensScreen />}
         </div>
 
         <nav className="fixed bottom-0 left-0 right-0 bg-slate-800 border-t border-slate-700">
@@ -186,12 +185,12 @@ const VLENS = () => {
               isActive={activeTab === 'swap'}
               onClick={() => setActiveTab('swap')}
             />
-            <NavButton
+            {/* <NavButton
               icon={<User size={24} />}
               label="Lens"
               isActive={activeTab === 'lens'}
               onClick={() => setActiveTab('lens')}
-            />
+            /> */}
           </div>
         </nav>
       </div>
@@ -424,8 +423,12 @@ const SwapScreen: React.FC = () => {
   };
 
   return (
-    <div className="p-4">
-      <div className="bg-slate-800 rounded-lg p-4 space-y-4">
+    <div className="p-2">
+
+        <span className="font-bold text-xl bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+            Vlens
+          </span>
+      <div className="bg-slate-800 rounded-lg  space-y-4">
         <TokenSelector
           label="From"
           selectedToken={fromToken}
@@ -511,7 +514,10 @@ const LensScreen = () => {
   return (
      <div className="min-h-screen bg-gray-900 py-12">
             <div className="container mx-auto px-4">
-                <h1 className="text-2xl font-bold mb-8">Earn</h1>
+                {/* <h1 className="text-2xl font-bold mb-8">Earn</h1> */}
+                <span className="font-bold text-xl bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent">
+                   Vlens
+                  </span>
                 
                 <LendingInterface />
             </div>
